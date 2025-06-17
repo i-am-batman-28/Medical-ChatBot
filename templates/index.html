@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medical Assistant Bot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --primary-color: #10b981;
+      --secondary-color: #059669;
+      --background-color: #f0fdf4;
+      --chat-bg: #ffffff;
+      --text-primary: #1f2937;
+      --text-secondary: #4b5563;
+      --success-color: #059669;
+      --border-radius: 1rem;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--background-color);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+
+    /*.robot-container {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.1;
+      display: none; /* Add this line to hide the robot container *
+    } 
+    
+  
+    
+    
+
+    .robot {
+      width: 100%;
+      height: 100%;
+      animation: float 3s ease-in-out infinite;
+    } 
+    */
+          /* Container for the floating robot/plus symbol */
+.robot-container {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.2;
+  display: block; /* set to block to make it visible */
+  animation: float 3s ease-in-out infinite; /* apply floating animation */
+}
+
+/* Robot/Plus icon itself */
+.robot {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Vertical part of the plus symbol */
+.robot::before,
+.robot::after {
+  content: '';
+  position: absolute;
+  background-color: #28a745; /* Green color for medical theme */
+  border-radius: 4px; /* soften the corners */
+}
+
+/* Vertical bar of plus */
+.robot::before {
+  width: 20%;
+  height: 60%;
+  left: 40%;
+  top: 20%;
+}
+
+/* Horizontal bar of plus */
+.robot::after {
+  width: 60%;
+  height: 20%;
+  left: 20%;
+  top: 40%;
+}
+
+/* Floating animation for a smooth up-down motion */
+@keyframes float {
+  0%, 100% {
+    transform: translate(-50%, -52%);
+  }
+  50% {
+    transform: translate(-50%, -48%);
+  }
+}
+
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+
+    .chat-box {
+      height: 85vh;
+      width: 380px;
+      position: fixed;
+      right: 2rem;
+      bottom: 2rem;
+      background: var(--chat-bg);
+      border-radius: var(--border-radius);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1), 0 2px 4px -2px rgba(16, 185, 129, 0.1);
+      z-index: 1000;
+      transition: var(--transition);
+      opacity: 0;
+      transform: translateY(20px);
+      visibility: hidden;
+      border: 2px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .chat-box.active {
+      opacity: 1;
+      transform: translateY(0);
+      visibility: visible;
+    }
+
+    .chat-box-header {
+      padding: 1.25rem;
+      background: var(--primary-color);
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-box-header h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chat-box-header .robot-icon {
+      font-size: 1.5rem;
+      animation: wave 2s infinite;
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(15deg); }
+    }
+
+    .chat-box-header .close-btn {
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: var(--transition);
+    }
+
+    .chat-box-header .close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-box-body {
+      flex: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      background: var(--background-color);
+      scroll-behavior: smooth;
+    }
+
+    .chat-message {
+      margin-bottom: 1rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: messageAppear 0.3s ease forwards;
+    }
+
+    @keyframes messageAppear {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .chat-box-body-send,
+    .chat-box-body-receive {
+      max-width: 80%;
+      padding: 1rem;
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .chat-box-body-send {
+      background: var(--primary-color);
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 0.25rem;
+    }
+
+    .chat-box-body-receive {
+      background: white;
+      border-bottom-left-radius: 0.25rem;
+      box-shadow: 0 1px 2px 0 rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .message-time {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    .chat-box-footer {
+      padding: 1rem;
+      background: white;
+      border-top: 1px solid rgba(16, 185, 129, 0.1);
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+    }
+
+    .chat-input-container {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      transition: var(--transition);
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .send-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .send-btn:hover {
+      background: var(--secondary-color);
+      transform: scale(1.05);
+    }
+
+    .chat-trigger {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--primary-color);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.5);
+      transition: var(--transition);
+    }
+
+    .chat-trigger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.6);
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .status-indicator::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: inherit;
+      border-radius: inherit;
+      animation: pulse 1.5s ease-out infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 0.25rem;
+      padding: 0.5rem;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 1rem;
+      width: fit-content;
+      margin-top: 0.5rem;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      animation: typingAnimation 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingAnimation {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); }
+    }
+
+    @media (max-width: 640px) {
+      .chat-box {
+        width: 100%;
+        height: 100vh;
+        right: 0;
+        bottom: 0;
+        border-radius: 0;
+        margin: 0;
+      }
+
+      .chat-trigger {
+        bottom: 1.5rem;
+        right: 1.5rem;
+      }
+
+      .robot-container {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="background-elements">
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="dna-helix"></div>
+    <div class="dna-helix"></div>
+</div>
+  <div class="robot-container">
+    <div class="robot"></div>
+  </div>
+
+  <div class="chat-box" id="chatBox">
+    <div class="chat-box-header">
+      <h3>
+        <i class="fas fa-robot robot-icon"></i>
+        Medical Assistant
+      </h3>
+      <button class="close-btn" onclick="toggleChat()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="chat-box-body" id="chatBody">
+      <div class="chat-box-body-receive chat-message">
+        <p>Hello! I'm your medical assistant. How can I help you today?</p>
+        <div class="message-time">Just now</div>
+      </div>
+    </div>
+
+    <div class="chat-box-footer">
+      <div class="chat-input-container">
+        <input                        
+          type="text" 
+          class="chat-input" 
+          placeholder="Type your message..." 
+          id="messageInput"
+        />
+        <button class="send-btn" id="sendButton">
+          <i class="far fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-trigger" id="chatTrigger" onclick="toggleChat()">
+    <div class="status-indicator"></div>
+    <span>Chat with Medical Assistant</span>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chatBox');
+    const chatBody = document.getElementById('chatBody');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const chatTrigger = document.getElementById('chatTrigger');
+    const robot = document.querySelector('.robot');
+
+    function toggleChat() {
+      chatBox.classList.toggle('active');
+      if (chatBox.classList.contains('active')) {
+        messageInput.focus();
+        robot.style.animation = 'none';
+        setTimeout(() => {
+          robot.style.animation = 'float 3s ease-in-out infinite';
+        }, 10);
+      }
+    }
+
+    function createMessage(content, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-box-body-${type} chat-message`;
+      
+      const messageContent = document.createElement('p');
+      messageContent.textContent = content;
+      
+      const timeDiv = document.createElement('div');
+      timeDiv.className = 'message-time';
+      timeDiv.textContent = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      messageDiv.appendChild(messageContent);
+      messageDiv.appendChild(timeDiv);
+      return messageDiv;
+    }
+
+    function showTypingIndicator() {
+      const indicator = document.createElement('div');
+      indicator.className = 'typing-indicator';
+      indicator.innerHTML = `
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      `;
+      chatBody.appendChild(indicator);
+      return indicator;
+    }
+   
+
+
+    async function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      chatBody.appendChild(createMessage(message, 'send'));
+      messageInput.value = '';
+      chatBody.scrollTop = chatBody.scrollHeight;
+
+      const typingIndicator = showTypingIndicator();
+
+      try {
+        const response = await fetch('/send_message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+        typingIndicator.remove();
+        chatBody.appendChild(createMessage(data.reply, 'receive'));
+        chatBody.scrollTop = chatBody.scrollHeight;
+      } catch (error) {
+        typingIndicator.remove();
+        chatBody.appendChild(createMessage('Sorry, I encountered an error. Please try again.', 'receive'));
+      }
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        chatTrigger.style.animation = 'pulse 2s infinite';
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
+
+<style>
+    .logo-container {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      cursor: pointer;
+      text-align: center;
+      /* Remove any background styling */
+      background: none;
+    }
+
+    .logo-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      text-shadow: 2px 2px 4px rgba(16, 185, 129, 0.2);
+      opacity: 0.9;
+      transition: all 0.3s ease;
+      letter-spacing: 2px;
+      /* Add word spacing */
+      word-spacing: 0.5em;
+    }
+
+    .logo-text span {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .logo-subtext {
+      font-size: 1.2rem;
+      color: var(--secondary-color);
+      opacity: 0.6;
+      margin-top: 0.5rem;
+    }
+
+    @keyframes wavyText {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @media (max-width: 640px) {
+      .logo-container {
+        display: none;
+      }
+    }
+
+    .background-elements {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .floating-shape {
+      position: absolute;
+      background: var(--primary-color);
+      opacity: 0.05;
+      border-radius: 50%;
+      animation: float-around 20s linear infinite;
+    }
+
+    .floating-shape:nth-child(1) {
+      width: 300px;
+      height: 300px;
+      top: 10%;
+      left: 10%;
+      animation-delay: -5s;
+    }
+
+    .floating-shape:nth-child(2) {
+      width: 200px;
+      height: 200px;
+      top: 60%;
+      right: 15%;
+      animation-delay: -10s;
+    }
+
+    .floating-shape:nth-child(3) {
+      width: 150px;
+      height: 150px;
+      bottom: 10%;
+      left: 20%;
+      animation-delay: -15s;
+    }
+
+    .dna-helix {
+      position: absolute;
+      width: 100px;
+      height: 400px;
+      opacity: 0.1;
+      background: repeating-linear-gradient(
+        45deg,
+        var(--primary-color) 0px,
+        var(--primary-color) 5px,
+        transparent 5px,
+        transparent 15px
+      );
+      animation: dna-rotate 15s linear infinite;
+    }
+
+    .dna-helix:nth-child(1) {
+      top: 20%;
+      right: 15%;
+    }
+
+    .dna-helix:nth-child(2) {
+      bottom: 10%;
+      left: 10%;
+      animation-delay: -7.5s;
+    }
+
+    @keyframes float-around {
+      0% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+      50% {
+        transform: translate(100px, 100px) rotate(180deg);
+      }
+      100% {
+        transform: translate(0, 0) rotate(360deg);
+      }
+    }
+
+    @keyframes dna-rotate {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .background-elements {
+        display: none;
+      }
+    }
+</style>
+
+<div class="logo-container" id="logoContainer">
+    <div class="logo-text" id="logoText">Karthik Med Labs</div>
+    <div class="logo-subtext">Healthcare Innovation</div>
+</div>
+
+<script>
+    // Update the text splitting to account for spaces
+    const logoText = document.getElementById('logoText');
+    const words = ['Karthik', 'Med', 'Labs'];
+    logoText.textContent = '';
+
+    // Create spans for each word and letter
+    words.forEach((word, wordIndex) => {
+        const wordContainer = document.createElement('span');
+        wordContainer.style.display = 'inline-block';
+        wordContainer.style.marginRight = wordIndex === words.length - 1 ? '0' : '0.5em';
+
+        word.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.style.animationDelay = `${(wordIndex * word.length + i) * 0.1}s`;
+            span.style.display = 'inline-block';
+            wordContainer.appendChild(span);
+        });
+
+        logoText.appendChild(wordContainer);
+    });
+
+    // Rest of your existing JavaScript for animations
+    // ... existing code ...
+</script>
+</body>
+</html>
+
+
