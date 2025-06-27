@@ -68,27 +68,24 @@
   pointer-events: none;
   z-index: 0;
   opacity: 0.2;
-  display: block; /* set to block to make it visible */
-  animation: float 3s ease-in-out infinite; /* apply floating animation */
+  display: block; 
+  animation: float 3s ease-in-out infinite; 
 }
 
-/* Robot/Plus icon itself */
 .robot {
   width: 100%;
   height: 100%;
   position: relative;
 }
 
-/* Vertical part of the plus symbol */
 .robot::before,
 .robot::after {
   content: '';
   position: absolute;
-  background-color: #28a745; /* Green color for medical theme */
-  border-radius: 4px; /* soften the corners */
+  background-color: #28a745; 
+  border-radius: 4px; 
 }
 
-/* Vertical bar of plus */
 .robot::before {
   width: 20%;
   height: 60%;
@@ -96,7 +93,6 @@
   top: 20%;
 }
 
-/* Horizontal bar of plus */
 .robot::after {
   width: 60%;
   height: 20%;
@@ -104,7 +100,6 @@
   top: 40%;
 }
 
-/* Floating animation for a smooth up-down motion */
 @keyframes float {
   0%, 100% {
     transform: translate(-50%, -52%);
@@ -525,7 +520,6 @@
       z-index: 0;
       cursor: pointer;
       text-align: center;
-      /* Remove any background styling */
       background: none;
     }
 
@@ -690,8 +684,6 @@
         logoText.appendChild(wordContainer);
     });
 
-    // Rest of your existing JavaScript for animations
-    // ... existing code ...
 </script>
 </body>
 </html>
