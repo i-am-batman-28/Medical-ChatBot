@@ -43,7 +43,6 @@ prompt = PromptTemplate(
     template=template,
 )
 
-# Create chain
 question_answer_chain = load_qa_chain(llm=llm, chain_type="stuff", prompt=prompt)
 rag_chain = RetrievalQA(combine_documents_chain=question_answer_chain, retriever=re)
 
